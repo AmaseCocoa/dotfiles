@@ -1,0 +1,16 @@
+# Created by newuser for 5.9
+
+export BW_SESSION=$(bw unlock --raw --passwordfile ~/.bw-password)
+
+eval "$(sheldon source)"
+eval "$(starship init zsh)"
+
+
+
+export EDITOR="nano";
+export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH";
+
+export XDG_DATA_DIRS="/usr/lcoal/share:/usr/share";
+
+alias steamlink='flatpak run com.valvesoftware.SteamLink'
+alias mail='aerc'

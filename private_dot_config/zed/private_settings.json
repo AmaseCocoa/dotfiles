@@ -1,0 +1,37 @@
+{
+  "theme": "One Dark",
+  "disable_ai": true,
+  "edit_predictions": {
+    "enabled_in_text_threads": false
+  },
+  "context_servers": {
+    "nuxt-ui": {
+      "enabled": true,
+      "command": "npx",
+      "args": ["mcp-remote", "https://ui.nuxt.com/mcp"],
+      "env": {}
+    }
+  },
+  "ui_font_family": "Monaspace Argon",
+  "buffer_font_family": "Moralerspace Argon",
+  "format_on_save": "on",
+  "autosave": { "after_delay": { "milliseconds": 500 } },
+  "languages": {
+    "Python": {
+      "language_servers": ["pyright", "ruff"],
+      "code_actions_on_format": { "source.fixAll.ruff": true }
+    }
+  },
+  "lsp": {
+    "ruff": {
+      "initialization_options": {
+        "settings": {
+          "lineLength": 80,
+          "lint": {
+            "extendSelect": ["I"]
+          }
+        }
+      }
+    }
+  }
+}
