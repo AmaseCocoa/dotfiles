@@ -14,3 +14,4 @@ export XDG_DATA_DIRS="/usr/lcoal/share:/usr/share";
 
 alias steamlink='flatpak run com.valvesoftware.SteamLink'
 alias mail='aerc'
+alias cz='chezmoi'
