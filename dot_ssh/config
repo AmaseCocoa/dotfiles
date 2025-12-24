@@ -1,0 +1,4 @@
+Host main
+	HostName 100.77.104.36
+	User aoi
+	IdentityFile {{ .chezmoi.homeDir }}/.ssh/id_main
