@@ -1,0 +1,104 @@
+#!/bin/bash
+
+# Settings
+REPO_URL="https://github.com/AmaseCocoa/dotfiles"
+INSTALL_DIR="$HOME/.local/df-cocoa"
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+msg() { echo -e "${BLUE}[Setup]${NC} $1"; }
+err() { echo -e "${RED}[Error]${NC} $1"; exit 1; }
+
+# Check for git
+if ! command -v git &> /dev/null; then
+    err "git is not installed. Please install git first."
+fi
+
+# Help message
+show_help() {
+    echo "Usage: $0 {install|update|uninstall} [--force]"
+    echo ""
+    echo "Options:"
+    echo "  -f, --force    Re-apply patches even if they already exist."
+    echo ""
+    echo "Commands:"
+    echo "  install   Clone repository to $INSTALL_DIR and run full installation."
+    echo "  update    Pull latest changes and re-apply patches."
+    echo "  uninstall Run uninstaller from the local repository."
+    exit 1
+}
+
+# Parse global flags
+FORCE=false
+COMMAND=""
+for arg in "$@"; do
+    case $arg in
+        -f|--force) FORCE=true ;;
+        install|update|uninstall) COMMAND=$arg ;;
+    esac
+done
+
+# Ensure repository exists and scripts are executable
+ensure_repo() {
+    if [ ! -d "$INSTALL_DIR" ]; then
+        msg "Cloning repository to $INSTALL_DIR..."
+        mkdir -p "$(dirname "$INSTALL_DIR")"
+        git clone "$REPO_URL" "$INSTALL_DIR" || err "Failed to clone repository."
+    fi
+    cd "$INSTALL_DIR" || err "Failed to enter $INSTALL_DIR"
+    chmod +x scripts/*.sh
+}
+
+run_script() {
+    local name=$1
+    msg "Running $name..."
+    if [ -f "scripts/$name" ]; then
+        if [ "$FORCE" = true ]; then
+            bash "scripts/$name" --force
+        else
+            bash "scripts/$name"
+        fi
+    else
+        err "Script scripts/$name not found."
+    fi
+}
+
+# Command implementations
+do_install() {
+    ensure_repo
+    run_script "install_pkgs.sh"
+    run_script "install_drivers.sh"
+    run_script "apply_hyprland.sh"
+    run_script "post-install.sh"
+    msg "${GREEN}Installation complete.${NC}"
+}
+
+do_update() {
+    ensure_repo
+    msg "Pulling latest changes..."
+    git pull || err "Failed to pull updates."
+    chmod +x scripts/*.sh
+    run_script "post-install.sh"
+    msg "${GREEN}Update complete.${NC}"
+}
+
+do_uninstall() {
+    if [ ! -d "$INSTALL_DIR" ]; then
+        err "Repository not found at $INSTALL_DIR. Nothing to uninstall."
+    fi
+    cd "$INSTALL_DIR" || err "Failed to enter $INSTALL_DIR"
+    run_script "uninstall.sh"
+    msg "${GREEN}Uninstallation complete.${NC}"
+}
+
+# Main execution logic
+case "$COMMAND" in
+    install)   do_install ;;
+    update)    do_update ;;
+    uninstall) do_uninstall ;;
+    *)         show_help ;;
+esac
